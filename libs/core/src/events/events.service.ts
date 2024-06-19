@@ -60,6 +60,20 @@ export class EventsService {
 
   async remove(id: string) {
     try {
+      // Check for reserved spots
+      const reservedSpots = await this.prismaService.spot.findMany({
+        where: {
+          eventId: id,
+          status: SpotStatus.reserved,
+        },
+      });
+
+      if (reservedSpots.length > 0) {
+        throw new BadRequestException(
+          `Event with ID ${id} has reserved spots and cannot be deleted`,
+        );
+      }
+
       // delete all event spots
       await this.prismaService.spot.deleteMany({
         where: {
