@@ -1,0 +1,81 @@
+GET http://localhost:3000/events
+
+###
+# @name createEvent
+POST http://localhost:3000/events
+Content-Type: application/json
+
+{
+  "name": "New Eventss",
+  "description": "This is a new event",
+  "date": "2015-01-01",
+  "price": 100
+ 
+}
+
+###
+@eventId = {{ createEvent.response.body.id }}
+
+###
+GET http://localhost:3000/events/{{eventId}}
+
+###
+DELETE http://localhost:3000/events/{{eventId}}
+
+###
+PATCH  http://localhost:3000/events/{{eventId}}
+Content-Type: application/json
+
+{
+  "name": "New Eventsss",
+  "price": 2
+}
+
+
+###
+GET http://localhost:3000/events/{{eventId}}/spots
+
+
+###
+# @name createSpot
+POST http://localhost:3000/events/{{eventId}}/spots
+Content-Type: application/json
+
+{
+  "name": "A1"
+}
+
+###
+@spotId = {{ createSpot.response.body.id }}
+
+
+###
+GET http://localhost:3000/events/{{eventId}}/spots/{{spotId}}
+
+
+###
+
+PATCH http://localhost:3000/events/{{eventId}}/spots/{{spotId}}
+Content-Type: application/json
+
+{
+  "name": "A4"
+}
+
+###
+DELETE http://localhost:3000/events/{{eventId}}/spots/{{spotId}}
+
+
+###
+@spotName = {{ createSpot.response.body.name}}
+
+POST http://localhost:3000/events/{{eventId}}/reserve
+Content-Type: application/json
+X-Api-Token: 123
+
+{
+  "spots": ["{{spotName}}"],
+  "ticket_kind": "full",
+  "email": "teste@test.com"
+}
+
