@@ -10,6 +10,12 @@ import { NotFoundError } from '../errors';
 export class EventsService {
   constructor(private prismaService: PrismaService) {}
   async create(createEventDto: CreateEventDto) {
+    const currentDate = new Date();
+
+    if (createEventDto.date <= currentDate) {
+      throw new BadRequestException('The event date must be a future date');
+    }
+
     return await this.prismaService.event.create({
       data: {
         ...createEventDto,

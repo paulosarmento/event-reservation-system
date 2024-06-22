@@ -8,7 +8,7 @@ Content-Type: application/json
 {
   "name": "New Eventss",
   "description": "This is a new event",
-  "date": "2015-01-01",
+  "date": "2024-06-23",
   "price": 100
  
 }
