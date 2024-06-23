@@ -15,6 +15,15 @@
       "compilerOptions": {
         "tsConfigPath": "libs/core/tsconfig.lib.json"
       }
+    },
+    "ecommerce-core": {
+      "type": "library",
+      "root": "libs/ecommerce-core",
+      "entryFile": "index",
+      "sourceRoot": "libs/ecommerce-core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/ecommerce-core/tsconfig.lib.json"
+      }
     }
   }
 }

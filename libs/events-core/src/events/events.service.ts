@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { ReserveSpotDto } from './dto/reserve-spot.dto';
 import { Prisma, SpotStatus, TicketStatus } from '@prisma/client';
 import { NotFoundError } from '../errors';
@@ -11,7 +11,6 @@ export class EventsService {
   constructor(private prismaService: PrismaService) {}
   async create(createEventDto: CreateEventDto) {
     const currentDate = new Date();
-
     if (createEventDto.date <= currentDate) {
       throw new BadRequestException('The event date must be a future date');
     }

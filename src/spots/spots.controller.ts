@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { SpotsService } from '@app/core/spots/spots.service';
+import { SpotsService } from 'libs/events-core/src/spots/spots.service';
 import { CreateSpotRequestDto } from './RequestDto/create-spot-request.dto';
 import { UpdateSpotRequestDto } from './RequestDto/update-spot-request.dto';
 

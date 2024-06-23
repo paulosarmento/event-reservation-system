@@ -3,8 +3,9 @@ import { EventsModule } from './events/events.module';
 // import { PrismaModule } from './prisma/prisma.module';
 import { SpotsModule } from './spots/spots.module';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from '@app/core/prisma/prisma.module';
-import { AuthModule } from '@app/core/auth/auth.module';
+import { PrismaModule } from 'src/prisma/prisma.module';
+import { AuthModule } from 'libs/events-core/src/auth/auth.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuthModule } from '@app/core/auth/auth.module';
     PrismaModule,
     EventsModule,
     SpotsModule,
+    ProductsModule,
   ],
 })
 export class AppModule {}

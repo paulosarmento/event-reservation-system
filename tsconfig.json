@@ -19,10 +19,16 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@app/core": [
-        "libs/core/src"
+        "libs/events-core/src"
       ],
       "@app/core/*": [
-        "libs/core/src/*"
+        "libs/events-core/src/*"
+      ],
+      "@app/ecommerce-core": [
+        "libs/ecommerce-core/src"
+      ],
+      "@app/ecommerce-core/*": [
+        "libs/ecommerce-core/src/*"
       ]
     }
   }

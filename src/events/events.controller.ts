@@ -9,11 +9,11 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { EventsService } from '@app/core/events/events.service';
+import { EventsService } from 'libs/events-core/src/events/events.service';
 import { CreateEventRequestDto } from './requestDto/create-event-request.dto';
 import { UpdateEventRequestDto } from './requestDto/update-event-request.dto';
 import { ReserveSpotRequestDto } from './requestDto/reserve-spot-request.dto';
-import { AuthGuard } from '@app/core/auth/auth.guard';
+import { AuthGuard } from 'libs/events-core/src/auth/auth.guard';
 
 @Controller('events')
 export class EventsController {

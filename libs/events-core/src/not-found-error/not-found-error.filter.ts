@@ -1,4 +1,4 @@
-import { NotFoundError } from '@app/core/errors';
+import { NotFoundError } from 'libs/events-core/src/errors';
 import {
   ArgumentsHost,
   BadRequestException,

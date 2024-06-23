@@ -32,8 +32,8 @@ model Spot {
   updatedAt          DateTime             @updatedAt
   eventId            String
   Event              Event                @relation(fields: [eventId], references: [id])
-  Ticket             Ticket?
   ReservationHistory ReservationHistory[]
+  Ticket             Ticket?
 }
 
 enum SpotStatus {
@@ -72,4 +72,66 @@ enum TicketKind {
 enum TicketStatus {
   reserved
   canceled
+}
+
+model Product {
+  id                         Int       @id @default(autoincrement())
+  code                       String
+  description                String
+  unit                       String
+  NCM                        String?
+  origin                     Int?
+  price                      Float
+  valueIPI                   Float?
+  observations               String?
+  situation                  String
+  stock                      Float?
+  costPrice                  Float?
+  supplierCode               String?
+  supplier                   String?
+  location                   String?
+  maxStock                   Float?
+  minStock                   Float?
+  netWeight                  Float?
+  grossWeight                Float?
+  GTINEAN                    String?
+  GTINEANPackage             String?
+  productWidth               Float?
+  productHeight              Float?
+  productDepth               Float?
+  expirationDate             DateTime?
+  supplierProductDescription String?
+  additionalDescription      String?
+  itemsPerBox                Float?
+  productVariation           String?
+  productionType             String?
+  IPIClassification          String?
+  serviceListCode            String?
+  itemType                   String?
+  tags                       String?
+  tributes                   Float?
+  parentCode                 String?
+  integrationCode            Int?
+  productGroup               String?
+  brand                      String?
+  CEST                       String?
+  volumes                    Int?
+  shortDescription           String?
+  crossDocking               Int?
+  externalImageURLs          String?
+  externalLink               String?
+  supplierWarrantyMonths     String?
+  cloneParentData            String?
+  productCondition           String?
+  freeShipping               String?
+  FCI                        String?
+  video                      String?
+  department                 String?
+  unitOfMeasure              String?
+  purchasePrice              Float?
+  ICMSBaseRetentionValue     Float?
+  ICMSRetentionValue         Float?
+  ICMSOwnSubstituteValue     Float?
+  productCategory            String?
+  additionalInformation      String?
 }
