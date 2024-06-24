@@ -1,9 +1,16 @@
 import { Module } from '@nestjs/common';
 import { ProductsController } from './products.controller';
 import { ProductsCoreModule } from '@app/ecommerce-core';
+import { MulterModule } from '@nestjs/platform-express';
 
 @Module({
-  imports: [ProductsCoreModule],
+  imports: [
+    ProductsCoreModule,
+    MulterModule.register({
+      dest: './uploads',
+    }),
+  ],
   controllers: [ProductsController],
+  exports: [MulterModule],
 })
 export class ProductsModule {}

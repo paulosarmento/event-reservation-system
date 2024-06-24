@@ -75,16 +75,16 @@ enum TicketStatus {
 }
 
 model Product {
-  id                         Int       @id @default(autoincrement())
-  code                       String
-  description                String
-  unit                       String
+  id                         String    @id @default(uuid())
+  code                       String?
+  description                String?
+  unit                       String?
   NCM                        String?
   origin                     Int?
-  price                      Float
+  price                      Float?
   valueIPI                   Float?
-  observations               String?
-  situation                  String
+  observations               String?   @db.LongText
+  situation                  String?
   stock                      Float?
   costPrice                  Float?
   supplierCode               String?
@@ -101,7 +101,7 @@ model Product {
   productDepth               Float?
   expirationDate             DateTime?
   supplierProductDescription String?
-  additionalDescription      String?
+  additionalDescription      String?   @db.LongText
   itemsPerBox                Float?
   productVariation           String?
   productionType             String?
@@ -116,7 +116,7 @@ model Product {
   brand                      String?
   CEST                       String?
   volumes                    Int?
-  shortDescription           String?
+  shortDescription           String?   @db.LongText
   crossDocking               Int?
   externalImageURLs          String?
   externalLink               String?

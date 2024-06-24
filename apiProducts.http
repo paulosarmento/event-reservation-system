@@ -1,10 +1,15 @@
 GET http://localhost:3000/products
+###
+GET http://localhost:3000/products/parent
 
+###
+DELETE http://localhost:3000/products/444
 ### 
 POST http://localhost:3000/products
 Content-Type: application/json
 
 {
+  "id": "444",
   "code": "sdasd",
   "description": "asdasd",
   "unit": "UN",
@@ -12,13 +17,19 @@ Content-Type: application/json
   "situation": "new"
 }
 ###
-GET http://localhost:3000/products/3
+GET http://localhost:3000/products/444
+###
+GET http://localhost:3000/products/CHUTFMC/children
+###
+GET http://localhost:3000/products/CHUTFMC/parentandchildren
+
 
 ###
-PATCH http://localhost:3000/products/3
+PATCH http://localhost:3000/products/444
 Content-Type: application/json
 
 {
+  "id": "444",
   "code": "sdasd",
   "description": "asdasd",
   "unit": "UN",
@@ -28,4 +39,29 @@ Content-Type: application/json
 }
 
 ###
-DELETE http://localhost:3000/products/3
+GET http://localhost:3000/products/sdasd
+###
+GET http://localhost:3000/products/444
+
+
+###
+POST http://localhost:3000/products/import
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZgW
+
+------WebKitFormBoundary7MA4YWxkTrZgW
+Content-Disposition: form-data; name="file"; filename="products.csv"
+Content-Type: text/csv
+
+id,code,description,unit,price,situation
+16277280157,sdasd,asdasd,UN,20.00,new
+16277280157,sdasd,asdasd,UN,20.00,new
+------WebKitFormBoundary7MA4YWxkTrZgW--
+
+
+
+# curl -X POST http://localhost:3000/products/import \
+#   -H "Content-Type: multipart/form-data" \
+#   -F "file=@products.csv"
+
+
+

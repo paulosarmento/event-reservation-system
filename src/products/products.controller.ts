@@ -6,10 +6,15 @@ import {
   Patch,
   Param,
   Delete,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { ProductsService } from '@app/ecommerce-core';
 import { CreateProductRequestDto } from './requestDto/create-product.dto';
 import { UpdateProductRequestDto } from './requestDto/update-product.dto';
+import { Express } from 'express';
+import { CreateProductDto } from '@app/ecommerce-core/products/dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -20,26 +25,50 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  @Get('parent')
+  async findAllWithChildren() {
+    return await this.productsService.findAllWithChildren();
+  }
+
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAllParents() {
+    return this.productsService.findAllParents();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.productsService.findOne(+id);
+  findOneProduct(@Param('id') id: string) {
+    return this.productsService.findOneProduct(id);
   }
 
   @Patch(':id')
-  update(
+  updateProduct(
     @Param('id') id: string,
     @Body() updateProductRequestDto: UpdateProductRequestDto,
   ) {
-    return this.productsService.update(+id, updateProductRequestDto);
+    return this.productsService.updateProduct(id, updateProductRequestDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.productsService.remove(+id);
+  removeProduct(@Param('id') id: string) {
+    return this.productsService.removeProduct(id);
+  }
+
+  @Post('import')
+  @UseInterceptors(FileInterceptor('file'))
+  async importProducts(@UploadedFile() file: Express.Multer.File) {
+    return this.productsService.importProducts(file);
+  }
+
+  @Get(':parentCode/children')
+  async findChildrenByParentCode(
+    @Param('parentCode') parentCode: string,
+  ): Promise<CreateProductDto[]> {
+    return this.productsService.findChildrenByParentCode(parentCode);
+  }
+  @Get(':parentCode/parentandchildren')
+  async findParentAndChildren(
+    @Param('parentCode') parentCode: string,
+  ): Promise<CreateProductDto[]> {
+    return this.productsService.findParentAndChildren(parentCode);
   }
 }

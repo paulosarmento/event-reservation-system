@@ -1,14 +1,14 @@
 export class CreateProductDto {
-  id?: number;
-  code: string;
-  description: string;
-  unit: string;
+  id?: string;
+  code?: string;
+  description?: string;
+  unit?: string;
   NCM?: string;
   origin?: number;
-  price: number;
+  price?: number;
   valueIPI?: number;
   observations?: string;
-  situation: string;
+  situation?: string;
   stock?: number;
   costPrice?: number;
   supplierCode?: string;

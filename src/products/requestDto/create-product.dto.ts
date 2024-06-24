@@ -1,6 +1,6 @@
 export class CreateProductRequestDto {
-  id?: number;
-  code: string;
+  id?: string;
+  code?: string;
   description: string;
   unit: string;
   NCM?: string;
