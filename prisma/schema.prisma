@@ -36,6 +36,17 @@ model Spot {
   Ticket             Ticket?
 }
 
+model ReservationHistory {
+  id         String       @id @default(uuid())
+  email      String
+  ticketKind TicketKind
+  status     TicketStatus
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  spotId     String
+  Spot       Spot         @relation(fields: [spotId], references: [id])
+}
+
 enum SpotStatus {
   available
   reserved
@@ -53,17 +64,6 @@ model Ticket {
   @@unique([spotId])
 }
 
-model ReservationHistory {
-  id         String       @id @default(uuid())
-  email      String
-  ticketKind TicketKind
-  status     TicketStatus
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @default(now())
-  spotId     String
-  Spot       Spot         @relation(fields: [spotId], references: [id])
-}
-
 enum TicketKind {
   full
   half
@@ -75,7 +75,7 @@ enum TicketStatus {
 }
 
 model Product {
-  id                         String    @id @default(uuid())
+  id                         String              @id @default(uuid())
   code                       String?
   description                String?
   unit                       String?
@@ -83,7 +83,7 @@ model Product {
   origin                     Int?
   price                      Float?
   valueIPI                   Float?
-  observations               String?   @db.LongText
+  observations               String?             @db.LongText
   situation                  String?
   stock                      Float?
   costPrice                  Float?
@@ -101,7 +101,7 @@ model Product {
   productDepth               Float?
   expirationDate             DateTime?
   supplierProductDescription String?
-  additionalDescription      String?   @db.LongText
+  additionalDescription      String?             @db.LongText
   itemsPerBox                Float?
   productVariation           String?
   productionType             String?
@@ -116,9 +116,9 @@ model Product {
   brand                      String?
   CEST                       String?
   volumes                    Int?
-  shortDescription           String?   @db.LongText
+  shortDescription           String?             @db.LongText
   crossDocking               Int?
-  externalImageURLs          String?
+  externalImageURLs          ExternalImageURLs[]
   externalLink               String?
   supplierWarrantyMonths     String?
   cloneParentData            String?
@@ -134,4 +134,11 @@ model Product {
   ICMSOwnSubstituteValue     Float?
   productCategory            String?
   additionalInformation      String?
+}
+
+model ExternalImageURLs {
+  id        String   @id @default(uuid())
+  url       String
+  productId String
+  Product   Product? @relation(fields: [productId], references: [id])
 }

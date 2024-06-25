@@ -74,6 +74,6 @@ export class ProductsController {
   async findParentAndChildren(
     @Param('parentCode') parentCode: string,
   ): Promise<CreateProductDto[]> {
-    return this.productsService.findParentAndChildren(parentCode);
+    return this.productsService.findParentAndChildren(parentCode) as any;
   }
 }

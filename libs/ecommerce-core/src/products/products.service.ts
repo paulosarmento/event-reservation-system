@@ -5,17 +5,28 @@ import * as fs from 'fs';
 import * as fastCsv from 'fast-csv';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
+import { Product } from '@prisma/client';
 
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
   constructor(private prismaService: PrismaService) {}
-
-  async create(createProductDto: CreateProductDto): Promise<void> {
+  async create(createProductDto: CreateProductDto): Promise<Product> {
     try {
-      await this.prismaService.product.create({
-        data: createProductDto,
+      const product = await this.prismaService.product.create({
+        data: {
+          ...createProductDto,
+          externalImageURLs: {
+            create:
+              createProductDto.externalImageURLs?.map((url) => ({ url })) || [],
+          },
+        },
+        include: {
+          externalImageURLs: true,
+        },
       });
+
+      return product;
     } catch (error) {
       this.logger.error(`Failed to create product: ${error.message}`);
       throw error;
@@ -27,6 +38,9 @@ export class ProductsService {
       where: {
         OR: [{ parentCode: null }, { parentCode: '' }],
       },
+      include: {
+        externalImageURLs: true,
+      },
     });
   }
 
@@ -35,13 +49,26 @@ export class ProductsService {
       where: {
         OR: [{ id }, { code: id }],
       },
+      include: {
+        externalImageURLs: true,
+      },
     });
   }
 
   updateProduct(id: string, updateProductDto: CreateProductDto) {
     return this.prismaService.product.update({
       where: { id },
-      data: updateProductDto,
+      data: {
+        ...updateProductDto,
+        externalImageURLs: {
+          create: updateProductDto.externalImageURLs.map((url) => ({
+            url,
+          })),
+        },
+      },
+      include: {
+        externalImageURLs: true,
+      },
     });
   }
 
@@ -109,7 +136,7 @@ export class ProductsService {
             volumes: parseInt(row['Volumes']),
             shortDescription: row['Descrição Curta'],
             crossDocking: parseFloat(row['Cross-Docking']),
-            externalImageURLs: row['URL Imagens Externas'],
+            externalImageURLs: row['URL Imagens Externas'].split(';'),
             externalLink: row['Link Externo'],
             supplierWarrantyMonths: row['Meses Garantia no Fornecedor'],
             cloneParentData: row['Clonar dados do pai'],
@@ -138,14 +165,28 @@ export class ProductsService {
             for (const product of products) {
               try {
                 await this.prismaService.product.create({
-                  data: product,
+                  data: {
+                    ...product,
+                    externalImageURLs: {
+                      create: product.externalImageURLs.map((url) => ({
+                        url,
+                      })),
+                    },
+                  },
                 });
               } catch (error) {
                 if (error.code === 'P2002') {
                   // Unique constraint failed, so update the existing record
                   await this.prismaService.product.update({
                     where: { id: product.id },
-                    data: product,
+                    data: {
+                      ...product,
+                      externalImageURLs: {
+                        create: product.externalImageURLs.map((url) => ({
+                          url,
+                        })),
+                      },
+                    },
                   });
                 } else {
                   throw error;
@@ -174,32 +215,48 @@ export class ProductsService {
       where: {
         parentCode,
       },
-    });
-    return children;
-  }
-  async findParentAndChildren(code: string): Promise<CreateProductDto[]> {
-    const parent = await this.prismaService.product.findFirst({
-      where: {
-        code,
+      include: {
+        externalImageURLs: true,
       },
     });
+    return children as any;
+  }
 
-    if (!parent) {
-      throw new Error(`Produto com código ${code} não encontrado.`);
+  async findParentAndChildren(
+    code: string,
+  ): Promise<{ parent: CreateProductDto; children: CreateProductDto[] }> {
+    try {
+      // find parent
+      const parent = await this.prismaService.product.findFirst({
+        where: {
+          code,
+        },
+        include: {
+          externalImageURLs: true,
+        },
+      });
+
+      if (!parent) {
+        throw new Error(`Produto com código ${code} não encontrado.`);
+      }
+
+      // find all children
+      const children = await this.prismaService.product.findMany({
+        where: {
+          parentCode: code,
+        },
+        include: {
+          externalImageURLs: true,
+        },
+      });
+
+      return { ...parent, ...children } as any;
+    } catch (error) {
+      this.logger.error(`Erro ao buscar produto e filhos: ${error.message}`);
+      throw error;
     }
-
-    // Find all children
-    const children = await this.prismaService.product.findMany({
-      where: {
-        parentCode: code,
-      },
-    });
-
-    //  Combine parent and children
-    const parentAndChildren: CreateProductDto[] = [parent, ...children];
-
-    return parentAndChildren;
   }
+
   async findAllWithChildren() {
     this.logger.log('Fetching all products...');
     const allProducts = await this.prismaService.product.findMany();
@@ -218,11 +275,22 @@ export class ProductsService {
           where: {
             parentCode: product.code,
           },
+          include: {
+            externalImageURLs: true,
+          },
         });
 
         parentsWithChildren.push({ parent: product, children });
       } else if (!product.parentCode || product.parentCode === '') {
-        parentsWithoutChildren.push(product);
+        const productWithImages = await this.prismaService.product.findUnique({
+          where: {
+            id: product.id,
+          },
+          include: {
+            externalImageURLs: true,
+          },
+        });
+        parentsWithoutChildren.push(productWithImages);
       }
     }
 
@@ -243,20 +311,32 @@ export class ProductsService {
   async saveMessageAsProduct() {
     try {
       const productMessageUrl =
-        'https://www.amazon.com/Gaming-Chair-Ergonomic-Executive-Adjustable/dp/B0C27DZ891/ref=sr_1_10?_encoding=UTF8&content-id=amzn1.sym.12129333-2117-4490-9c17-6d31baf0582a&dib=eyJ2IjoiMSJ9.ocBaBUroHATy1ZVnizk_tgmIWbRuOEOKBpDVzkGLGtnEQ315zBdshVUUXbYZH000dH-9paUv_UapgNux1htNCprfYXfDwqCnQ-lU19HN6rbrVrHhXtDw_nQvkOkFJcT2JU-lMVi4TxiHEeWdKqciQlvI_Z60bLZ3Nc3eEwXQVaAqRmDDmq77B4Ly5nc6g_0UuVwUKJYX9VCObOOvu2E-CEXIaUp7QYxM2JYY9y1cWYw0VgSASgCpJEs07ChktWMhqhHBQcWXzSVrgiQ4Zlf3MW07O2diBdKYDxmNazoBowY.tINULvxEvVtd7MUUp3Z-VPLQHqj4dalSwTnhoo3dZ2U&dib_tag=se&keywords=gaming%2Bchairs&pd_rd_r=8a623152-e646-41be-8f82-ea3a541f6f68&pd_rd_w=hFExo&pd_rd_wg=2MfzU&pf_rd_p=12129333-2117-4490-9c17-6d31baf0582a&pf_rd_r=N69K8M9TPX78YRECD2FB&qid=1719327878&sr=8-10&th=1';
+        'https://www.amazon.com/Razer-BlackWidow-Mechanical-Gaming-Keyboard/dp/B0BV4BC7LV/ref=sr_1_1_sspa?_encoding=UTF8&content-id=amzn1.sym.12129333-2117-4490-9c17-6d31baf0582a&dib=eyJ2IjoiMSJ9.N39cGS2DIJptv7_LrdUM-bxAVNGzQx7CP80nqhvjXF4nP3-3zgJ_9O9jkn4DplJIQoIb9B_agrxTRQ8Umj6n4MAnJWJULwSUX4nHQzno6yllMQEnZLuL5jzHhh6_66Vd_ZVAK_i4yX38Xbz6r8Yb01MtYV4Po6zG57leKmhpNYG1Vn_KT7TZ3iQoQqOGzKXeNBod9qoN2E0hBYZmvW2fD-p2gM_ZFKVwyvxDe5cupxs.2HdkRXC5AScowNokHqR37V3svWPouoC5BhQrYl735EM&dib_tag=se&keywords=gaming%2Bkeyboard&pd_rd_r=05bf0897-1646-4522-bfa7-aaa54c015715&pd_rd_w=tT7OA&pd_rd_wg=m1ufT&pf_rd_p=12129333-2117-4490-9c17-6d31baf0582a&pf_rd_r=43DC4E1XCGDG0HD52MDQ&qid=1719351690&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1';
       const { data } = await axios.get(productMessageUrl);
-      // console.log('Data:', data);
+
       const $ = cheerio.load(data);
       const [descriptionMessage] = $('#productTitle').text().trim().split('\n');
       console.log('Message:', descriptionMessage);
 
-      return await this.prismaService.product.create({
-        data: {
-          description: descriptionMessage,
-        },
+      // select all images
+      const imageUrls = [];
+      $('#altImages img').each((index, element) => {
+        const imgUrl = $(element).attr('src');
+        if (imgUrl) {
+          imageUrls.push(imgUrl);
+        }
       });
+      console.log('Image URLs:', imageUrls);
+
+      const createProductDto: CreateProductDto = {
+        description: descriptionMessage,
+        externalImageURLs: imageUrls,
+      };
+
+      const product = await this.create(createProductDto);
+      return product;
     } catch (error) {
-      console.error('Error saving commit message as product:', error);
+      console.error('Error saving product:', error);
       throw error;
     }
   }

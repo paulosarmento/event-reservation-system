@@ -42,7 +42,7 @@ export class CreateProductRequestDto {
   volumes?: number;
   shortDescription?: string;
   crossDocking?: number;
-  externalImageURLs?: string;
+  externalImageURLs?: string[];
   externalLink?: string;
   supplierWarrantyMonths?: string;
   cloneParentData?: string;
