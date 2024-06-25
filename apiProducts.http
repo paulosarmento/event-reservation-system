@@ -1,4 +1,6 @@
-GET http://localhost:3000/products
+GET http://localhost:3000/products/
+###
+GET http://localhost:3000/products/save-product
 ###
 GET http://localhost:3000/products/parent
 
@@ -9,7 +11,7 @@ POST http://localhost:3000/products
 Content-Type: application/json
 
 {
-  "id": "444",
+  "id": "444s",
   "code": "sdasd",
   "description": "asdasd",
   "unit": "UN",

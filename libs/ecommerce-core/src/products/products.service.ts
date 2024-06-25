@@ -3,6 +3,8 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as fastCsv from 'fast-csv';
+import axios from 'axios';
+import * as cheerio from 'cheerio';
 
 @Injectable()
 export class ProductsService {
@@ -236,5 +238,26 @@ export class ProductsService {
       parentsWithChildren,
       parentsWithoutChildren,
     };
+  }
+
+  async saveMessageAsProduct() {
+    try {
+      const productMessageUrl =
+        'https://www.amazon.com/Gaming-Chair-Ergonomic-Executive-Adjustable/dp/B0C27DZ891/ref=sr_1_10?_encoding=UTF8&content-id=amzn1.sym.12129333-2117-4490-9c17-6d31baf0582a&dib=eyJ2IjoiMSJ9.ocBaBUroHATy1ZVnizk_tgmIWbRuOEOKBpDVzkGLGtnEQ315zBdshVUUXbYZH000dH-9paUv_UapgNux1htNCprfYXfDwqCnQ-lU19HN6rbrVrHhXtDw_nQvkOkFJcT2JU-lMVi4TxiHEeWdKqciQlvI_Z60bLZ3Nc3eEwXQVaAqRmDDmq77B4Ly5nc6g_0UuVwUKJYX9VCObOOvu2E-CEXIaUp7QYxM2JYY9y1cWYw0VgSASgCpJEs07ChktWMhqhHBQcWXzSVrgiQ4Zlf3MW07O2diBdKYDxmNazoBowY.tINULvxEvVtd7MUUp3Z-VPLQHqj4dalSwTnhoo3dZ2U&dib_tag=se&keywords=gaming%2Bchairs&pd_rd_r=8a623152-e646-41be-8f82-ea3a541f6f68&pd_rd_w=hFExo&pd_rd_wg=2MfzU&pf_rd_p=12129333-2117-4490-9c17-6d31baf0582a&pf_rd_r=N69K8M9TPX78YRECD2FB&qid=1719327878&sr=8-10&th=1';
+      const { data } = await axios.get(productMessageUrl);
+      // console.log('Data:', data);
+      const $ = cheerio.load(data);
+      const [descriptionMessage] = $('#productTitle').text().trim().split('\n');
+      console.log('Message:', descriptionMessage);
+
+      return await this.prismaService.product.create({
+        data: {
+          description: descriptionMessage,
+        },
+      });
+    } catch (error) {
+      console.error('Error saving commit message as product:', error);
+      throw error;
+    }
   }
 }

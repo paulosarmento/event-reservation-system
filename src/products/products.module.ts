@@ -11,6 +11,5 @@ import { MulterModule } from '@nestjs/platform-express';
     }),
   ],
   controllers: [ProductsController],
-  exports: [MulterModule],
 })
 export class ProductsModule {}

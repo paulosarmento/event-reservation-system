@@ -30,6 +30,11 @@ export class ProductsController {
     return await this.productsService.findAllWithChildren();
   }
 
+  @Get('save-product')
+  async saveMessageAsProduct() {
+    return this.productsService.saveMessageAsProduct();
+  }
+
   @Get()
   findAllParents() {
     return this.productsService.findAllParents();
