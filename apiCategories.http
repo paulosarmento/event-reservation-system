@@ -1,0 +1,62 @@
+GET http://localhost:3000/categories/
+###
+GET http://localhost:3000/products/
+###
+GET http://localhost:3000/products/1
+###
+GET http://localhost:3000/categories/444
+###
+POST http://localhost:3000/categories
+Content-Type: application/json
+
+{
+  "id": "444",
+  # "productIds": ["1"],
+  "name": "Casa"
+ 
+}
+
+###
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "id": "1",
+  "code": "Camiseta",
+  "description": "curta",
+  "price": 20.00,
+  "situation": "new",
+  "categoryIds": ["444"],
+  "externalImageURLs": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+  
+  
+}
+###
+DELETE http://localhost:3000/categories/444
+
+###
+DELETE http://localhost:3000/products/1
+
+###
+PATCH http://localhost:3000/products/1
+Content-Type: application/json
+
+{
+  # "code": "sdasd",
+  # "description": "asdasd",
+  # "price": 20.00,
+  # "situation": "new",
+  "categoryIds": ["444"]
+}
+
+
+
+###
+PATCH http://localhost:3000/categories/444
+Content-Type: application/json
+
+{
+  "productIds": ["1271455"]
+}
+
+###

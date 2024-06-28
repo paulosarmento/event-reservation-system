@@ -3,9 +3,10 @@ import { EventsModule } from './events/events.module';
 // import { PrismaModule } from './prisma/prisma.module';
 import { SpotsModule } from './spots/spots.module';
 import { ConfigModule } from '@nestjs/config';
-import { PrismaModule } from 'src/prisma/prisma.module';
 import { AuthModule } from 'libs/events-core/src/auth/auth.module';
 import { ProductsModule } from './products/products.module';
+import { CategoriesModule } from './categories/categories.module';
+import { PrismaModule } from 'libs/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { ProductsModule } from './products/products.module';
     EventsModule,
     SpotsModule,
     ProductsModule,
+    CategoriesModule,
   ],
 })
 export class AppModule {}

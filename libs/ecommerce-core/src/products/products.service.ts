@@ -1,28 +1,38 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 import * as fs from 'fs';
 import * as fastCsv from 'fast-csv';
 import axios from 'axios';
 import * as cheerio from 'cheerio';
 import { Product } from '@prisma/client';
+import { PrismaService } from 'libs/prisma/prisma.service';
 
 @Injectable()
 export class ProductsService {
   private readonly logger = new Logger(ProductsService.name);
   constructor(private prismaService: PrismaService) {}
+
   async create(createProductDto: CreateProductDto): Promise<Product> {
     try {
+      const { categoryIds, ...productData } = createProductDto;
+
       const product = await this.prismaService.product.create({
         data: {
-          ...createProductDto,
+          ...productData,
           externalImageURLs: {
-            create:
-              createProductDto.externalImageURLs?.map((url) => ({ url })) || [],
+            create: createProductDto.externalImageURLs?.map((url) => ({ url })),
+          },
+          productCategories: {
+            create: categoryIds?.map((categoryId) => ({ categoryId })),
           },
         },
         include: {
           externalImageURLs: true,
+          productCategories: {
+            include: {
+              Category: true,
+            },
+          },
         },
       });
 
@@ -38,42 +48,132 @@ export class ProductsService {
       where: {
         OR: [{ parentCode: null }, { parentCode: '' }],
       },
-      include: {
-        externalImageURLs: true,
+      select: {
+        id: true,
+        code: true,
+        description: true,
+        price: true,
+        situation: true,
+        parentCode: true,
+        externalImageURLs: {
+          select: {
+            url: true,
+          },
+        },
+        productCategories: {
+          select: {
+            Category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
   }
 
-  findOneProduct(id: string) {
-    return this.prismaService.product.findFirst({
+  async findOneProduct(id: string) {
+    const productChildren = await this.prismaService.product.findMany({
+      where: { parentCode: id },
+      include: {
+        externalImageURLs: true,
+        productCategories: {
+          include: {
+            Category: true,
+          },
+        },
+      },
+    });
+    if (productChildren.length > 0) {
+      return productChildren;
+    }
+
+    const productParent = await this.prismaService.product.findFirst({
       where: {
         OR: [{ id }, { code: id }],
       },
       include: {
-        externalImageURLs: true,
+        externalImageURLs: {
+          select: {
+            id: true,
+            url: true,
+          },
+        },
+        productCategories: {
+          select: {
+            Category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
+
+    return [productParent, ...productChildren];
   }
 
-  updateProduct(id: string, updateProductDto: CreateProductDto) {
+  async updateProduct(id: string, updateProductDto: CreateProductDto) {
+    const { categoryIds, ...productData } = updateProductDto;
     return this.prismaService.product.update({
       where: { id },
       data: {
-        ...updateProductDto,
+        ...productData,
         externalImageURLs: {
-          create: updateProductDto.externalImageURLs.map((url) => ({
-            url,
-          })),
+          create: updateProductDto.externalImageURLs?.map((url) => ({ url })),
+        },
+        productCategories: {
+          create: categoryIds?.map((categoryId) => ({ categoryId })),
         },
       },
       include: {
         externalImageURLs: true,
+        productCategories: {
+          include: {
+            Category: true,
+          },
+        },
       },
     });
   }
 
-  removeProduct(id: string) {
-    return this.prismaService.product.delete({ where: { id } });
+  async removeProduct(id: string) {
+    try {
+      const dependentCategories = await this.prismaService.category.findMany({
+        where: {
+          productCategories: {
+            some: {
+              productId: id,
+            },
+          },
+        },
+      });
+
+      for (const category of dependentCategories) {
+        await this.prismaService.category.update({
+          where: { id: category.id },
+          data: {
+            productCategories: {
+              deleteMany: {
+                productId: id,
+              },
+            },
+          },
+        });
+      }
+      await this.prismaService.externalImageURLs.deleteMany({
+        where: {
+          productId: id,
+        },
+      });
+      await this.prismaService.product.delete({ where: { id } });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
+    }
   }
 
   async importProducts(file: Express.Multer.File) {
@@ -93,69 +193,9 @@ export class ProductsService {
             id: row['ID'],
             code: row['Código'],
             description: row['Descrição'],
-            unit: row['Unidade'],
-            NCM: row['NCM'],
-            origin: parseInt(row['Origem']),
             price: parseFloat(row['Preço']),
-            valueIPI: parseFloat(row['Valor IPI fixo']),
-            observations: row['Observações'],
-            situation: row['Situação'],
-            stock: parseFloat(row['Estoque']),
-            costPrice: parseFloat(row['Preço de custo']),
-            supplierCode: row['Cód. no fornecedor'],
-            supplier: row['Fornecedor'],
-            location: row['Localização'],
-            maxStock: parseFloat(row['Estoque máximo']),
-            minStock: parseFloat(row['Estoque mínimo']),
-            netWeight: parseFloat(row['Peso líquido (Kg)']),
-            grossWeight: parseFloat(row['Peso bruto (Kg)']),
-            GTINEAN: row['GTIN/EAN'],
-            GTINEANPackage: row['GTIN/EAN da Embalagem'],
-            productWidth: parseFloat(row['Largura do produto']),
-            productHeight: parseFloat(row['Altura do Produto']),
-            productDepth: parseFloat(row['Profundidade do produto']),
-            expirationDate: row['Data Validade']
-              ? new Date(row['Data Validade'])
-              : null,
-            supplierProductDescription:
-              row['Descrição do Produto no Fornecedor'],
-            additionalDescription: row['Descrição Complementar'],
-            itemsPerBox: parseFloat(row['Itens p/ caixa']),
-            productVariation: row['Produto Variação'],
-            productionType: row['Tipo Produção'],
-            IPIClassification: row['Classe de enquadramento do IPI'],
-            serviceListCode: row['Código na Lista de Serviços'],
-            itemType: row['Tipo do item'],
-            tags: row['Grupo de Tags/Tags'],
-            tributes: parseFloat(row['Tributos']),
             parentCode: row['Código Pai'],
-            integrationCode: parseInt(row['Código Integração']),
-            productGroup: row['Grupo de produtos'],
-            brand: row['Marca'],
-            CEST: row['CEST'],
-            volumes: parseInt(row['Volumes']),
-            shortDescription: row['Descrição Curta'],
-            crossDocking: parseFloat(row['Cross-Docking']),
             externalImageURLs: row['URL Imagens Externas'].split(';'),
-            externalLink: row['Link Externo'],
-            supplierWarrantyMonths: row['Meses Garantia no Fornecedor'],
-            cloneParentData: row['Clonar dados do pai'],
-            productCondition: row['Condição do Produto'],
-            freeShipping: row['Frete Grátis'],
-            FCI: row['Número FCI'],
-            video: row['Vídeo'],
-            department: row['Departamento'],
-            unitOfMeasure: row['Unidade de Medida'],
-            purchasePrice: parseFloat(row['Preço de Compra']),
-            ICMSBaseRetentionValue: parseFloat(
-              row['Valor base ICMS ST para retenção'],
-            ),
-            ICMSRetentionValue: parseFloat(row['Valor ICMS ST para retenção']),
-            ICMSOwnSubstituteValue: parseFloat(
-              row['Valor ICMS próprio do substituto'],
-            ),
-            productCategory: row['Categoria do produto'],
-            additionalInformation: row['Informações Adicionais'],
           };
 
           products.push(product);
@@ -176,7 +216,6 @@ export class ProductsService {
                 });
               } catch (error) {
                 if (error.code === 'P2002') {
-                  // Unique constraint failed, so update the existing record
                   await this.prismaService.product.update({
                     where: { id: product.id },
                     data: {
@@ -200,7 +239,7 @@ export class ProductsService {
           } catch (error) {
             reject(error);
           } finally {
-            fs.unlinkSync(file.path); // Delete the temporary file
+            fs.unlinkSync(file.path);
           }
         })
         .on('error', (error) => {
@@ -208,6 +247,7 @@ export class ProductsService {
         });
     });
   }
+
   async findChildrenByParentCode(
     parentCode: string,
   ): Promise<CreateProductDto[]> {
@@ -216,7 +256,20 @@ export class ProductsService {
         parentCode,
       },
       include: {
-        externalImageURLs: true,
+        externalImageURLs: {
+          select: {
+            url: true,
+          },
+        },
+        productCategories: {
+          include: {
+            Category: {
+              select: {
+                name: true,
+              },
+            },
+          },
+        },
       },
     });
     return children as any;
@@ -226,13 +279,23 @@ export class ProductsService {
     code: string,
   ): Promise<{ parent: CreateProductDto; children: CreateProductDto[] }> {
     try {
-      // find parent
       const parent = await this.prismaService.product.findFirst({
-        where: {
-          code,
-        },
+        where: { code },
         include: {
-          externalImageURLs: true,
+          externalImageURLs: {
+            select: {
+              url: true,
+            },
+          },
+          productCategories: {
+            include: {
+              Category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
@@ -240,17 +303,27 @@ export class ProductsService {
         throw new Error(`Produto com código ${code} não encontrado.`);
       }
 
-      // find all children
       const children = await this.prismaService.product.findMany({
-        where: {
-          parentCode: code,
-        },
+        where: { parentCode: code },
         include: {
-          externalImageURLs: true,
+          externalImageURLs: {
+            select: {
+              url: true,
+            },
+          },
+          productCategories: {
+            include: {
+              Category: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
         },
       });
 
-      return { ...parent, ...children } as any;
+      return { parent, children } as any;
     } catch (error) {
       this.logger.error(`Erro ao buscar produto e filhos: ${error.message}`);
       throw error;
@@ -258,10 +331,15 @@ export class ProductsService {
   }
 
   async findAllWithChildren() {
-    this.logger.log('Fetching all products...');
-    const allProducts = await this.prismaService.product.findMany();
-
-    this.logger.log(`Found ${allProducts.length} products.`);
+    const allProducts = await this.prismaService.product.findMany({
+      include: {
+        externalImageURLs: {
+          select: {
+            url: true,
+          },
+        },
+      },
+    });
 
     const parentsWithChildren = [];
     const parentsWithoutChildren = [];
@@ -272,35 +350,21 @@ export class ProductsService {
     for (const product of allProducts) {
       if (childrenSet.has(product.code)) {
         const children = await this.prismaService.product.findMany({
-          where: {
-            parentCode: product.code,
-          },
+          where: { parentCode: product.code },
           include: {
-            externalImageURLs: true,
+            externalImageURLs: {
+              select: {
+                url: true,
+              },
+            },
           },
         });
 
         parentsWithChildren.push({ parent: product, children });
       } else if (!product.parentCode || product.parentCode === '') {
-        const productWithImages = await this.prismaService.product.findUnique({
-          where: {
-            id: product.id,
-          },
-          include: {
-            externalImageURLs: true,
-          },
-        });
-        parentsWithoutChildren.push(productWithImages);
+        parentsWithoutChildren.push(product);
       }
     }
-
-    this.logger.log('Finished separating all products.');
-    this.logger.log(
-      `Total parents with children: ${parentsWithChildren.length}`,
-    );
-    this.logger.log(
-      `Total parents without children: ${parentsWithoutChildren.length}`,
-    );
 
     return {
       parentsWithChildren,
@@ -311,14 +375,13 @@ export class ProductsService {
   async saveMessageAsProduct() {
     try {
       const productMessageUrl =
-        'https://www.amazon.com/Razer-BlackWidow-Mechanical-Gaming-Keyboard/dp/B0BV4BC7LV/ref=sr_1_1_sspa?_encoding=UTF8&content-id=amzn1.sym.12129333-2117-4490-9c17-6d31baf0582a&dib=eyJ2IjoiMSJ9.N39cGS2DIJptv7_LrdUM-bxAVNGzQx7CP80nqhvjXF4nP3-3zgJ_9O9jkn4DplJIQoIb9B_agrxTRQ8Umj6n4MAnJWJULwSUX4nHQzno6yllMQEnZLuL5jzHhh6_66Vd_ZVAK_i4yX38Xbz6r8Yb01MtYV4Po6zG57leKmhpNYG1Vn_KT7TZ3iQoQqOGzKXeNBod9qoN2E0hBYZmvW2fD-p2gM_ZFKVwyvxDe5cupxs.2HdkRXC5AScowNokHqR37V3svWPouoC5BhQrYl735EM&dib_tag=se&keywords=gaming%2Bkeyboard&pd_rd_r=05bf0897-1646-4522-bfa7-aaa54c015715&pd_rd_w=tT7OA&pd_rd_wg=m1ufT&pf_rd_p=12129333-2117-4490-9c17-6d31baf0582a&pf_rd_r=43DC4E1XCGDG0HD52MDQ&qid=1719351690&sr=8-1-spons&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&th=1';
+        'https://www.amazon.com.br/Echo-Pop-Cor-Preta/dp/B09WXVH7WK/?_encoding=UTF8&pd_rd_w=I94Ph&content-id=amzn1.sym.8fbb3d34-c3f1-46af-9d99-fd6986f6ec8f&pf_rd_p=8fbb3d34-c3f1-46af-9d99-fd6986f6ec8f&pf_rd_r=ABB0N2DFKT2ZHQ9BZAB9&pd_rd_wg=TY8yi&pd_rd_r=072e1c37-b479-458f-82f2-10631cf6f3a7&ref_=pd_hp_d_btf_crs_zg_bs_16333486011';
       const { data } = await axios.get(productMessageUrl);
 
       const $ = cheerio.load(data);
       const [descriptionMessage] = $('#productTitle').text().trim().split('\n');
       console.log('Message:', descriptionMessage);
 
-      // select all images
       const imageUrls = [];
       $('#altImages img').each((index, element) => {
         const imgUrl = $(element).attr('src');
@@ -338,6 +401,20 @@ export class ProductsService {
     } catch (error) {
       console.error('Error saving product:', error);
       throw error;
+    }
+  }
+  async removeProductImage(productId: string, imageId: string) {
+    try {
+      await this.prismaService.externalImageURLs.delete({
+        where: {
+          id: imageId,
+          productId: productId,
+        },
+      });
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
     }
   }
 }

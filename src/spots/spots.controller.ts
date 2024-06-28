@@ -8,8 +8,8 @@ import {
   Delete,
 } from '@nestjs/common';
 import { SpotsService } from 'libs/events-core/src/spots/spots.service';
-import { CreateSpotRequestDto } from './RequestDto/create-spot-request.dto';
-import { UpdateSpotRequestDto } from './RequestDto/update-spot-request.dto';
+import { CreateSpotRequestDto } from './requestDto/create-spot-request.dto';
+import { UpdateSpotRequestDto } from './requestDto/update-spot-request.dto';
 
 @Controller('events/:eventId/spots')
 export class SpotsController {

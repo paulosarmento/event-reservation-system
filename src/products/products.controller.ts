@@ -57,6 +57,13 @@ export class ProductsController {
   removeProduct(@Param('id') id: string) {
     return this.productsService.removeProduct(id);
   }
+  @Delete(':productId/:imageId')
+  removeProductImage(
+    @Param('imageId') imageId: string,
+    @Param('productId') productId: string,
+  ) {
+    return this.productsService.removeProductImage(productId, imageId);
+  }
 
   @Post('import')
   @UseInterceptors(FileInterceptor('file'))

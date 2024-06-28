@@ -1,51 +1,51 @@
 GET http://localhost:3000/products/
 ###
-GET http://localhost:3000/products/4cddbfa7-5c21-4a4c-b92f-9b71aa581b4f
-###
-GET http://localhost:3000/products/save-product
+GET http://localhost:3000/products/CHUTFMC/children
 ###
 GET http://localhost:3000/products/parent
 
 ###
-DELETE http://localhost:3000/products/444
-### 
+GET http://localhost:3000/products/CHUTFMC
+
+###
+GET http://localhost:3000/products/CHUTFMC/parentandchildren
+
+###
+GET http://localhost:3000/products/save-product
+
+
+###
 POST http://localhost:3000/products
 Content-Type: application/json
 
 {
   "code": "Test",
   "description": "asdasd",
-  "unit": "UN",
   "price": 20.00,
   "situation": "new"
+  # "externalImageURLs": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
+  # "categoryIds": ["0efc53be-afe3-43ca-854d-33ffb2431101", "2899fd09-433e-41d2-8d0e-44ed0d848050"]
   
 }
-###
-GET http://localhost:3000/products/444
-###
-GET http://localhost:3000/products/CHUTFMC/children
-###
-GET http://localhost:3000/products/CHUTFMC/parentandchildren
+
 
 
 ###
-PATCH http://localhost:3000/products/5256c434-dca7-4fb5-838f-73deac94747c
+PATCH http://localhost:3000/products/1
 Content-Type: application/json
 
 {
-  "code": "sdasd",
-  "description": "asdasd",
-  "unit": "UN",
-  "price": 20.00,
-  "situation": "new",
+  # "code": "sdasd",
+  # "description": "asdasd",
+  # "price": 20.00,
+  # "situation": "new",
   "externalImageURLs": ["asdasd"]
 
+  # "categoryIds": ["13cd654a-c8d8-4960-b1a7-2d9cb6a9ed1d"]
 }
 
 ###
-GET http://localhost:3000/products/5256c434-dca7-4fb5-838f-73deac94747c
-
-
+DELETE http://localhost:3000/products/1
 
 ###
 POST http://localhost:3000/products/import
@@ -62,9 +62,9 @@ id,code,description,unit,price,situation
 
 
 
-# curl -X POST http://localhost:3000/products/import \
-#   -H "Content-Type: multipart/form-data" \
-#   -F "file=@products.csv"
+curl -X POST http://localhost:3000/products/import \
+  -H "Content-Type: multipart/form-data" \
+  -F "file=@products.csv"
 
 
 

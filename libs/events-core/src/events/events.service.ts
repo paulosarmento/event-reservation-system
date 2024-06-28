@@ -1,10 +1,10 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
-import { PrismaService } from '../../../../src/prisma/prisma.service';
 import { ReserveSpotDto } from './dto/reserve-spot.dto';
 import { Prisma, SpotStatus, TicketStatus } from '@prisma/client';
 import { NotFoundError } from '../errors';
+import { PrismaService } from 'libs/prisma/prisma.service';
 
 @Injectable()
 export class EventsService {
