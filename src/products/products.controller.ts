@@ -10,11 +10,11 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ProductsService } from '@app/ecommerce-core';
 import { CreateProductRequestDto } from './requestDto/create-product.dto';
 import { UpdateProductRequestDto } from './requestDto/update-product.dto';
 import { Express } from 'express';
-import { CreateProductDto } from '@app/ecommerce-core/products/dto/create-product.dto';
+import { ProductsService } from 'libs/ecommerce-core/src';
+import { CreateProductDto } from 'libs/ecommerce-core/src/products/dto/create-product.dto';
 
 @Controller('products')
 export class ProductsController {

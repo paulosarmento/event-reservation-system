@@ -22,8 +22,8 @@ Content-Type: application/json
   "code": "Test",
   "description": "asdasd",
   "price": 20.00,
+  "externalImageURLs": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
   "situation": "new"
-  # "externalImageURLs": ["https://example.com/image1.jpg", "https://example.com/image2.jpg"],
   # "categoryIds": ["0efc53be-afe3-43ca-854d-33ffb2431101", "2899fd09-433e-41d2-8d0e-44ed0d848050"]
   
 }

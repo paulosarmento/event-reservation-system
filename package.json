@@ -40,7 +40,7 @@
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
-    "@nestjs/testing": "^10.0.0",
+    "@nestjs/testing": "^10.3.9",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
@@ -82,8 +82,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
-      "^@app/core(|/.*)$": "<rootDir>/libs/core/src/$1",
-      "^@app/ecommerce-core(|/.*)$": "<rootDir>/libs/ecommerce-core/src/$1"
+      "^libs/(.*)$": "<rootDir>/libs/$1"
     }
   }
 }

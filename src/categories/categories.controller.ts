@@ -7,9 +7,9 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { CategoriesService } from '@app/ecommerce-core';
 import { CreateCategoryRequestDto } from './requestDto/create-category.dto';
 import { UpdateCategoryRequestDto } from './requestDto/update-category.dto';
+import { CategoriesService } from 'libs/ecommerce-core/src';
 
 @Controller('categories')
 export class CategoriesController {

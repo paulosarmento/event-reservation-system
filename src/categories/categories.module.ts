@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CategoriesController } from './categories.controller';
-import { CategoriesCoreModule } from '@app/ecommerce-core';
+import { CategoriesCoreModule } from 'libs/ecommerce-core/src';
 
 @Module({
   imports: [CategoriesCoreModule],

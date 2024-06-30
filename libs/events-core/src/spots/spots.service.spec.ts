@@ -1,24 +1,22 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SpotsController } from './spots.controller';
-import { SpotsService } from 'libs/events-core/src/spots/spots.service';
+import { SpotsService } from './spots.service';
 import { PrismaService } from 'libs/prisma/prisma.service';
 
-describe('SpotsController', () => {
-  let controller: SpotsController;
+describe('SpotsService', () => {
+  let service: SpotsService;
   let prismaService: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [SpotsController],
       providers: [SpotsService, PrismaService],
     }).compile();
 
-    controller = module.get<SpotsController>(SpotsController);
+    service = module.get<SpotsService>(SpotsService);
     prismaService = module.get<PrismaService>(PrismaService);
   });
 
   it('should be defined', () => {
-    expect(controller).toBeDefined();
+    expect(service).toBeDefined();
     expect(prismaService).toBeDefined();
   });
 });
