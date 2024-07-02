@@ -1,0 +1,36 @@
+GET http://localhost:3000/orders/
+###
+GET http://localhost:3000/products/7290dea9-f88a-4c6e-83d3-c1c79c39e709
+
+###
+GET http://localhost:3000/orders/f9904002-fd50-424c-a240-e47cb29b9faa
+
+###
+
+POST http://localhost:3000/orders
+Content-Type: application/json
+
+{
+  "items": [
+    {
+      "quantity": 11,
+      "productId": "1271455"
+    },
+    {
+      "quantity": 10,
+      "productId": "19f16589-6ac7-4429-b78a-a0b9b264bb24"
+    }
+  ]
+  
+}
+
+###
+PATCH http://localhost:3000/orders/f9904002-fd50-424c-a240-e47cb29b9faa
+Content-Type: application/json
+
+{
+  "status": "CANCELLED"
+}
+
+###
+DELETE http://localhost:3000/orders/f9904002-fd50-424c-a240-e47cb29b9faa

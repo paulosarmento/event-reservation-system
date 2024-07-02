@@ -83,6 +83,7 @@ model Product {
   parentCode        String?
   externalImageURLs ExternalImageURLs[]
   productCategories ProductCategory[]
+  orderItems        OrderItem[]
 }
 
 model Category {
@@ -105,4 +106,27 @@ model ExternalImageURLs {
   url       String
   productId String
   Product   Product @relation(fields: [productId], references: [id])
+}
+
+model Order {
+  id     String      @id @default(uuid())
+  total  Float
+  status OrderStatus
+  items  OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  quantity  Int
+  price     Float
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
 }

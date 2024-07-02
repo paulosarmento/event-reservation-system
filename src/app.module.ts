@@ -7,6 +7,7 @@ import { AuthModule } from 'libs/events-core/src/auth/auth.module';
 import { ProductsModule } from './products/products.module';
 import { CategoriesModule } from './categories/categories.module';
 import { PrismaModule } from 'libs/prisma/prisma.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { PrismaModule } from 'libs/prisma/prisma.module';
     SpotsModule,
     ProductsModule,
     CategoriesModule,
+    OrdersModule,
   ],
 })
 export class AppModule {}

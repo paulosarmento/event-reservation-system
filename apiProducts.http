@@ -31,10 +31,11 @@ Content-Type: application/json
 
 
 ###
-PATCH http://localhost:3000/products/1
+PATCH http://localhost:3000/products/16277290008
 Content-Type: application/json
 
 {
+  "id": "19f16589-6ac7-4429-b78a-a0b9b264bb24",
   # "code": "sdasd",
   # "description": "asdasd",
   # "price": 20.00,
