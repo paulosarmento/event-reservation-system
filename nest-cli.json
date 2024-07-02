@@ -1,10 +1,11 @@
 {
   "$schema": "https://json.schemastore.org/nest-cli",
   "collection": "@nestjs/schematics",
-  "sourceRoot": "src",
+  "sourceRoot": "apps/nestjs-partners-api/src",
   "compilerOptions": {
     "deleteOutDir": true,
-    "webpack": true
+    "webpack": true,
+    "tsConfigPath": "apps/nestjs-partners-api/tsconfig.app.json"
   },
   "projects": {
     "core": {
@@ -24,6 +25,35 @@
       "compilerOptions": {
         "tsConfigPath": "libs/ecommerce-core/tsconfig.lib.json"
       }
+    },
+    "nestjs-partners-api": {
+      "type": "application",
+      "root": "apps/nestjs-partners-api",
+      "entryFile": "main",
+      "sourceRoot": "apps/nestjs-partners-api/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/nestjs-partners-api/tsconfig.app.json"
+      }
+    },
+    "ecommerce": {
+      "type": "application",
+      "root": "apps/ecommerce",
+      "entryFile": "main",
+      "sourceRoot": "apps/ecommerce/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/ecommerce/tsconfig.app.json"
+      }
+    },
+    "events": {
+      "type": "application",
+      "root": "apps/events",
+      "entryFile": "main",
+      "sourceRoot": "apps/events/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/events/tsconfig.app.json"
+      }
     }
-  }
+  },
+  "monorepo": true,
+  "root": "apps/nestjs-partners-api"
 }

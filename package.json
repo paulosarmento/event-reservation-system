@@ -7,17 +7,17 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
-    "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\" \"libs/**/*.ts\"",
+    "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/apps/nestjs-partners-api/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./apps/nestjs-partners-api/test/jest-e2e.json"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -32,6 +32,7 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "csv-parser": "^3.0.0",
+    "dotenv-cli": "^7.4.2",
     "fast-csv": "^5.0.1",
     "multer": "^1.4.5-lts.1",
     "reflect-metadata": "^0.1.13",
@@ -78,8 +79,8 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/src/",
-      "<rootDir>/libs/"
+      "<rootDir>/libs/",
+      "<rootDir>/apps/"
     ],
     "moduleNameMapper": {
       "^libs/(.*)$": "<rootDir>/libs/$1"
