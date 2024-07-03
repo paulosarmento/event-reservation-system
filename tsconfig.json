@@ -15,6 +15,12 @@
     "paths": {
       "libs/*": [
         "libs/*"
+      ],
+      "@app/users-core": [
+        "libs/users-core/src"
+      ],
+      "@app/users-core/*": [
+        "libs/users-core/src/*"
       ]
     }
   },

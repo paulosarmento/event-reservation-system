@@ -130,3 +130,31 @@ enum OrderStatus {
   COMPLETED
   CANCELLED
 }
+
+model User {
+  id       String    @id @default(uuid())
+  name     String
+  email    String
+  password String
+  role     UserRole
+  Address  Address[]
+}
+
+enum UserRole {
+  ADMIN
+  USER
+  PARTNER
+}
+
+model Address {
+  id        String   @id @default(uuid())
+  address1  String
+  address2  String
+  city      String
+  state     String
+  zipCode   String
+  country   String
+  userId    String
+  User      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}

@@ -52,6 +52,15 @@
       "compilerOptions": {
         "tsConfigPath": "apps/events/tsconfig.app.json"
       }
+    },
+    "users-core": {
+      "type": "library",
+      "root": "libs/users-core",
+      "entryFile": "index",
+      "sourceRoot": "libs/users-core/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/users-core/tsconfig.lib.json"
+      }
     }
   },
   "monorepo": true,
