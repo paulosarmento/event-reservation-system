@@ -6,6 +6,22 @@ RUN npm install -g @nestjs/cli@10.3.2
 
 WORKDIR /home/node/app
 
-USER node 
+# copiar package.json antes (melhor cache)
+COPY package*.json ./
 
-CMD tail -f /dev/null
+# instalar dependências
+RUN npm install
+
+# copiar código restante
+COPY . .
+
+# gerar prisma client
+RUN npx prisma generate
+
+RUN chown -R node:node /home/node/app
+
+# mudar para usuário node
+USER node
+
+# rodar migrations e subir o NestJS
+CMD ["sh", "-c", "npx prisma migrate deploy && npm run start:dev"]
